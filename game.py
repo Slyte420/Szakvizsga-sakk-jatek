@@ -40,6 +40,8 @@ class BOARD:
         }
         self.move_history_san_white = []
         self.move_history_san_black = []
+        self.set = 0
+        self.setaddonce = False
 
     def print_TablePos(self):
         print(self.chessTablePos)
@@ -287,16 +289,30 @@ class BOARD:
                             screen.blit(self.check_image, check_rect)
 
     def draw_history(self):
-        for move in range(1, 6):
+        white_move_number = len(self.move_history_san_white)
+        black_move_number = len(self.move_history_san_black)
+        move_number = white_move_number
+        if move_number % 5 == 0 and move_number != 0 and not self.setaddonce:
+            self.set = self.set + 5
+            self.setaddonce = True
+        elif move_number % 5 != 0:
+            self.setaddonce = False
+        print(move_number, self.set)
+        if self.set == move_number and self.set:
+            self.set = self.set-1
+        for move in range(self.set, move_number):
             move_rect1 = pygame.Rect(
-                (square_number) * square_size, (move*0.39+1) * square_size, square_size/2, square_size*0.4)
-            move_rect2 = pygame.Rect(
-                (square_number+0.5) * square_size, (move*0.39+1) * square_size, square_size, square_size*0.4)
-            move_rect3 = pygame.Rect(
-                (square_number+1.5) * square_size, (move*0.39+1) * square_size, square_size, square_size*0.4)
-            pygame.draw.rect(screen, pygame.Color('Green'), move_rect1)
-            pygame.draw.rect(screen, pygame.Color('Blue'), move_rect2)
-            pygame.draw.rect(screen, pygame.Color('Red'), move_rect3)
+                square_number * square_size, ((move-self.set)*0.39+1) * square_size, square_size/2 + 2 * square_size, square_size*0.4)
+            turn_text = str(move+1) + ' '
+            turn_text = turn_text + self.move_history_san_white[move] + ' '
+            if move <= black_move_number-1:
+                turn_text = turn_text + self.move_history_san_black[move]
+            turn_rect = game_font.render(
+                turn_text, True, pygame.Color('Black'))
+            #pygame.draw.rect(screen, pygame.Color('Green'), move_rect1)
+            #pygame.draw.rect(screen, pygame.Color('Blue'), move_rect2)
+            #pygame.draw.rect(screen, pygame.Color('Red'), move_rect3)
+            screen.blit(turn_rect, move_rect1)
 
 
 class MAIN:
@@ -369,6 +385,7 @@ class MAIN:
 pygame.init()
 square_size = 128
 square_number = 8
+game_font = pygame.font.Font('Assets/gamefont.ttf', 55)
 screen = pygame.display.set_mode(
     (square_size * (square_number + 3), square_size * square_number))
 clock = pygame.time.Clock()
